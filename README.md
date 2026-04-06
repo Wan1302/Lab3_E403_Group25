@@ -117,3 +117,6 @@ Hoac xuat markdown:
 ```powershell
 python scripts/analyze_logs.py --log logs\2026-04-06.log --markdown report\group_report\METRICS_SUMMARY.md
 ```
+
+## Flowchart
+![alt text](flowchart.png)
