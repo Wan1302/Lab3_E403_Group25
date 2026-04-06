@@ -1,0 +1,134 @@
+﻿<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>So sanh 3 phien ban agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">LAB 3 · AGENTIC REASONING</p>
+        <h1>So sanh 3 phien ban: Chatbot, ReAct v1 va LangGraph v2</h1>
+        <p class="subtext">
+          Dashboard demo tieng Viet de doi chieu chat luong tra loi, token, do tre,
+          so buoc suy luan va nhat ky cong cu tren bo du lieu
+          <strong>{{ toolset_name }}</strong>.
+        </p>
+      </section>
+
+      <section class="composer">
+        <div class="composer-header">
+          <h2>Nhap yeu cau mua sam</h2>
+          <button id="run-button" type="button">Chay so sanh 3 phien ban</button>
+        </div>
+        <textarea id="question-input" rows="5" placeholder="Vi du: Toi can mua 2 tai nghe Sony WH-1000XM5. Hay dung du lieu cong khai tren Tiki va tim phuong an re nhat."></textarea>
+        <div class="example-strip">
+          {% for prompt in example_prompts %}
+            <button class="example-pill" type="button" data-prompt="{{ prompt }}">{{ prompt }}</button>
+          {% endfor %}
+        </div>
+        <p id="status-line" class="status-line">San sang chay demo.</p>
+      </section>
+
+      <section class="summary-grid">
+        <article class="summary-card">
+          <span class="summary-label">Provider</span>
+          <strong id="provider-value">Chua chay</strong>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">Nguon du lieu</span>
+          <strong id="toolset-value">{{ toolset_name }}</strong>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">v1 - baseline (token)</span>
+          <strong id="delta-token-v1-value">-</strong>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">v2 - baseline (token)</span>
+          <strong id="delta-token-v2-value">-</strong>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">v1 - baseline (do tre)</span>
+          <strong id="delta-latency-v1-value">-</strong>
+        </article>
+        <article class="summary-card">
+          <span class="summary-label">v2 - v1 (do tre)</span>
+          <strong id="delta-latency-v2-value">-</strong>
+        </article>
+      </section>
+
+      <section class="results-grid results-grid-3">
+        <article class="panel panel-chatbot">
+          <div class="panel-head">
+            <div>
+              <p class="panel-tag">PHIEN BAN A</p>
+              <h2>Chatbot baseline</h2>
+            </div>
+            <span class="badge badge-chatbot">Tra loi truc tiep</span>
+          </div>
+          <div class="metric-grid">
+            <div class="metric-box"><span>Prompt tokens</span><strong id="chatbot-prompt-tokens">-</strong></div>
+            <div class="metric-box"><span>Completion tokens</span><strong id="chatbot-completion-tokens">-</strong></div>
+            <div class="metric-box"><span>Tong tokens</span><strong id="chatbot-total-tokens">-</strong></div>
+            <div class="metric-box"><span>Do tre</span><strong id="chatbot-latency">-</strong></div>
+          </div>
+          <div class="answer-box" id="chatbot-answer">Chua co ket qua.</div>
+          <details class="details-box">
+            <summary>Chi tiet phan hoi</summary>
+            <pre id="chatbot-details">Chua co du lieu.</pre>
+          </details>
+        </article>
+
+        <article class="panel panel-react">
+          <div class="panel-head">
+            <div>
+              <p class="panel-tag">PHIEN BAN B</p>
+              <h2>ReAct agent v1</h2>
+            </div>
+            <span class="badge badge-react">Loop thu cong</span>
+          </div>
+          <div class="metric-grid">
+            <div class="metric-box"><span>Prompt tokens</span><strong id="react-prompt-tokens">-</strong></div>
+            <div class="metric-box"><span>Completion tokens</span><strong id="react-completion-tokens">-</strong></div>
+            <div class="metric-box"><span>Tong tokens</span><strong id="react-total-tokens">-</strong></div>
+            <div class="metric-box"><span>Do tre</span><strong id="react-latency">-</strong></div>
+            <div class="metric-box"><span>So buoc</span><strong id="react-steps">-</strong></div>
+            <div class="metric-box"><span>So lan goi tool</span><strong id="react-tool-calls">-</strong></div>
+          </div>
+          <div class="answer-box" id="react-answer">Chua co ket qua.</div>
+          <details class="details-box">
+            <summary>Dau vet suy luan</summary>
+            <pre id="react-details">Chua co du lieu.</pre>
+          </details>
+        </article>
+
+        <article class="panel panel-v2">
+          <div class="panel-head">
+            <div>
+              <p class="panel-tag">PHIEN BAN C</p>
+              <h2>LangGraph v2</h2>
+            </div>
+            <span class="badge badge-v2">State graph</span>
+          </div>
+          <div class="metric-grid">
+            <div class="metric-box"><span>Prompt tokens</span><strong id="v2-prompt-tokens">-</strong></div>
+            <div class="metric-box"><span>Completion tokens</span><strong id="v2-completion-tokens">-</strong></div>
+            <div class="metric-box"><span>Tong tokens</span><strong id="v2-total-tokens">-</strong></div>
+            <div class="metric-box"><span>Do tre</span><strong id="v2-latency">-</strong></div>
+            <div class="metric-box"><span>So buoc</span><strong id="v2-steps">-</strong></div>
+            <div class="metric-box"><span>So lan goi tool</span><strong id="v2-tool-calls">-</strong></div>
+          </div>
+          <div class="answer-box" id="v2-answer">Chua co ket qua.</div>
+          <details class="details-box" open>
+            <summary>Dau vet suy luan</summary>
+            <pre id="v2-details">Chua co du lieu.</pre>
+          </details>
+        </article>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
