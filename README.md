@@ -1,56 +1,119 @@
-# Lab 3: Chatbot vs ReAct Agent (Industry Edition)
+# Lab3_E403_25
 
-Welcome to Phase 3 of the Agentic AI course! This lab focuses on moving from a simple LLM Chatbot to a sophisticated **ReAct Agent** with industry-standard monitoring.
+## Tong quan
 
-## 🚀 Getting Started
+Project nay demo su khac nhau giua:
 
-### 1. Setup Environment
-Copy the `.env.example` to `.env` and fill in your API keys:
-```bash
-cp .env.example .env
+- `Chatbot baseline`: tra loi truc tiep bang LLM
+- `ReAct v1`: suy nghi, goi tool, nhan observation, roi moi ket luan
+- `LangGraph v2`: stateful graph agent voi node LLM va node tool
+
+Phien ban hien tai tap trung vao bai toan mua sam bang du lieu cong khai tu `Tiki`.
+Frontend web hien thi song song 3 ket qua, cung voi:
+
+- prompt tokens
+- completion tokens
+- tong tokens
+- do tre
+- so buoc suy luan
+- so lan goi tool
+
+## Kien truc chinh
+
+- `app.py`: Flask web app
+- `src/runtime.py`: khoi tao provider, toolset, va chay so sanh 3 phien ban
+- `src/chatbot/baseline.py`: chatbot baseline
+- `src/agent/agent.py`: ReAct agent v1
+- `src/agent/langgraph_agent.py`: LangGraph agent v2
+- `src/tools/tiki_tools.py`: tool lay du lieu cong khai tu Tiki
+- `src/telemetry/logger.py`: ghi log JSON
+- `src/telemetry/metrics.py`: tong hop token, latency, cost estimate
+
+## Tool hien tai
+
+- `search_tiki_products(query, limit)`
+- `find_cheapest_tiki_product(query, limit)`
+- `calculate_tiki_total(query, quantity, limit)`
+- `compare_tiki_options(query, quantity, limit)`
+
+## Yeu cau
+
+- Python 3.12 hoac Docker
+- OpenAI Platform API key
+- Ket noi Internet de truy van Tiki
+
+## Chay bang Docker
+
+1. Tao file `.env` tu `.env.example`
+2. Dien API key that vao `OPENAI_API_KEY`
+3. Chay:
+
+```powershell
+docker compose up --build
 ```
 
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
+4. Mo trinh duyet:
+
+```text
+http://localhost:8000
 ```
 
-### 3. Directory Structure
-- `src/tools/`: Extension point for your custom tools.
+## Mau file .env
 
-## 🏠 Running with Local Models (CPU)
-
-If you don't want to use OpenAI or Gemini, you can run open-source models (like Phi-3) directly on your CPU using `llama-cpp-python`.
-
-### 1. Download the Model
-Download the **Phi-3-mini-4k-instruct-q4.gguf** (approx 2.2GB) from Hugging Face:
-- [Phi-3-mini-4k-instruct-GGUF](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf)
-- Direct Download: [phi-3-mini-4k-instruct-q4.gguf](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf)
-
-### 2. Place Model in Project
-Create a `models/` folder in the root and move the downloaded `.gguf` file there.
-
-### 3. Update `.env`
-Change your `DEFAULT_PROVIDER` and set the path:
 ```env
-DEFAULT_PROVIDER=local
+OPENAI_API_KEY=sk-your-real-key
+GEMINI_API_KEY=
+
 LOCAL_MODEL_PATH=./models/Phi-3-mini-4k-instruct-q4.gguf
+
+DEFAULT_PROVIDER=openai
+DEFAULT_MODEL=gpt-4o
+SHOPPING_TOOLSET=tiki
+LOG_LEVEL=INFO
 ```
 
-## 🎯 Lab Objectives
+## Chay local khong dung Docker
 
-1.  **Baseline Chatbot**: Observe the limitations of a standard LLM when faced with multi-step reasoning.
-2.  **ReAct Loop**: Implement the `Thought-Action-Observation` cycle in `src/agent/agent.py`.
-3.  **Provider Switching**: Swap between OpenAI and Gemini seamlessly using the `LLMProvider` interface.
-4.  **Failure Analysis**: Use the structured logs in `logs/` to identify why the agent fails (hallucinations, parsing errors).
-5.  **Grading & Bonus**: Follow the [SCORING.md](file:///Users/tindt/personal/ai-thuc-chien/day03-lab-agent/SCORING.md) to maximize your points and explore bonus metrics.
+```powershell
+pip install -r requirements.txt
+python app.py
+```
 
-## 🛠️ How to Use This Baseline
-The code is designed as a **Production Prototype**. It includes:
-- **Telemetry**: Every action is logged in JSON format for later analysis.
-- **Robust Provider Pattern**: Easily extendable to any LLM API.
-- **Clean Skeletons**: Focus on the logic that matters—the agent's reasoning process.
+## Test
 
----
+```powershell
+pytest tests\test_agent_workflow.py tests\test_tiki_tools.py -q
+```
 
-*Happy Coding! Let's build agents that actually work.*
+## 5 use case demo
+
+1. Hay tim tren Tiki va cho toi biet gia cong khai hien tai cua Apple iPhone 13.
+2. Hay tim lua chon cong khai re nhat tren Tiki cho Apple iPhone 14.
+3. Toi muon mua 2 chiec Apple iPhone 13. Hay dung ket qua tren Tiki va tinh tong tien cong khai re nhat.
+4. Hay so sanh cac lua chon hang dau tren Tiki cho Sony WH-1000XM5 va cho toi biet nguoi ban nao dang co gia cong khai re nhat.
+5. Toi can mua 2 tai nghe Sony WH-1000XM5. Hay dung du lieu cong khai tren Tiki, so sanh cac lua chon hien co va cho toi biet tong tien re nhat.
+
+## Pipeline ngan gon
+
+1. Nguoi dung nhap cau hoi tren frontend
+2. Frontend goi `POST /api/compare`
+3. Backend chay `Chatbot baseline`
+4. Backend chay `ReAct v1`
+5. Backend chay `LangGraph v2`
+6. Hai agent co the goi tool Tiki
+7. Telemetry ghi token, latency, so buoc
+8. Frontend hien thi 3 ket qua song song
+
+## Phan tich log
+
+Co the dung script:
+
+```powershell
+python scripts/analyze_logs.py --log logs\2026-04-06.log
+```
+
+Hoac xuat markdown:
+
+```powershell
+python scripts/analyze_logs.py --log logs\2026-04-06.log --markdown report\group_report\METRICS_SUMMARY.md
+```

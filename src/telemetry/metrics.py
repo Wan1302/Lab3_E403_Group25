@@ -25,6 +25,19 @@ class PerformanceTracker:
         self.session_metrics.append(metric)
         logger.log_event("LLM_METRIC", metric)
 
+    def metrics_since(self, start_index: int) -> List[Dict[str, Any]]:
+        return self.session_metrics[start_index:]
+
+    def summarize_metrics(self, metrics: List[Dict[str, Any]]) -> Dict[str, Any]:
+        return {
+            "requests": len(metrics),
+            "prompt_tokens": sum(metric.get("prompt_tokens", 0) for metric in metrics),
+            "completion_tokens": sum(metric.get("completion_tokens", 0) for metric in metrics),
+            "total_tokens": sum(metric.get("total_tokens", 0) for metric in metrics),
+            "latency_ms": sum(metric.get("latency_ms", 0) for metric in metrics),
+            "cost_estimate": round(sum(metric.get("cost_estimate", 0.0) for metric in metrics), 6),
+        }
+
     def _calculate_cost(self, model: str, usage: Dict[str, int]) -> float:
         """
         TODO: Implement real pricing logic.
